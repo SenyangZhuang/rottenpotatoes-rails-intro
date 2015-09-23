@@ -17,7 +17,8 @@ class MoviesController < ApplicationController
   def index
     @all_ratings = retrive_collection()
     @checked_ratings_set = []
-    if params.length == 2 && session[:saved_args] != nil 
+    if params.length == 2 && session[:saved_args] != nil&&
+      session[:saved_args].length > 2 
       redirect_to movies_path(session[:saved_args])
       return
     end
