@@ -17,25 +17,11 @@ class MoviesController < ApplicationController
   def index
     @all_ratings = retrive_collection()
     @checked_ratings_set = []
-    if params.length == 2 && session[:saved_args] != nil&&
-      session[:saved_args].length > 2 
+    if params.length == 2 && session[:saved_args] != nil && session[:saved_args].length > 2
       redirect_to movies_path(session[:saved_args])
       return
     end
     session[:saved_args] = params
-    if params[:sortby] != nil
-      if params[:sortby]["title"] != nil
-        @thclass_title = "hilite"
-        @movies = Movie.order("title ASC").all
-      elsif params[:sortby]["date"] != nil
-        @thclass_date = "hilite"
-        @movies = Movie.order("release_date ASC").all
-      else
-        @movies = Movie.all
-      end
-    else
-      @movies = Movie.all
-    end
 
     if params[:commit] == "Refresh"
       if params[:ratings] != nil
@@ -45,13 +31,23 @@ class MoviesController < ApplicationController
     end
     
     if session[:checked_rating_box].nil?
-      @all_ratings.each do |rating| @checked_ratings_set<<rating.rating
+      @all_ratings.each do |rating| 
+        @checked_ratings_set<<rating.rating
       end
     else
       @checked_ratings_set = session[:checked_rating_box]
     end
-    @movies = @movies.nil? ? [] : @movies.select {|m| @checked_ratings_set.include?(m.rating)}
-    
+
+    # sort_by specifies which column is used to sort
+    if params[:sortby] == "title"
+      @thclass_title = "hilite"
+      @movies = Movie.where(rating: @checked_ratings_set).order(title: :asc)
+    elsif params[:sortby] == "date"
+      @thclass_date = "hilite"
+      @movies = Movie.where(rating: @checked_ratings_set).order(release_date: :asc)
+    else
+      @movies = Movie.where(rating: @checked_ratings_set)
+    end    
   end
 
   def new
