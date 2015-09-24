@@ -11,41 +11,42 @@ class MoviesController < ApplicationController
     end
     
     
-    def index
-        if params.length == 2 && session[:last_params] != nil && session[:saved_args].length > 2
-            redirect_to movies_path(session[:last_params])
-            return
-        end
-
-        session[:last_params] = params
-
-        @all_ratings = Movie.all.select('rating').distinct
-
-        if params[:commit] == "Refresh"
-            if params[:ratings] != nil
-               @ratings_set = params[:ratings].keys
-               session[:rating_box] = @ratings_set
-            end
-        end
-
-        if  session[:rating_box].nil?
-             @all_ratings.each do |rating|
-            @ratings_set<<rating.rating
-            end
-        else
-           @ratings_set = session[:rating_box]  
-        end
-        
-        if params[:sortby] == "title"
-            @thclass_title = "hilite"
-            @movies = Movie.where(rating: @ratings_set).order(title: :asc)
-            elsif params[:sortby] == "date"
-            @thclass_date = "hilite"
-            @movies = Movie.where(rating: @ratings_set).order(release_date: :asc)
-            else
-            @movies = Movie.where(rating: @ratings_set)
-        end
+  def index
+    @all_ratings = Movie.all.select('rating').distinct
+    @checked_ratings_set = []
+    if params.length == 2 && session[:saved_args] != nil && session[:saved_args].length > 2
+      redirect_to movies_path(session[:saved_args])
+      return
     end
+    session[:saved_args] = params
+
+    if params[:commit] == "Refresh"
+      if params[:ratings] != nil
+        @checked_ratings_set = params[:ratings].keys
+        session[:checked_rating_box] = @checked_ratings_set
+      end
+    end
+    
+    if session[:checked_rating_box].nil?
+      @all_ratings.each do |rating| 
+        @checked_ratings_set<<rating.rating
+      end
+    else
+      @checked_ratings_set = session[:checked_rating_box]
+    end
+
+    # sort_by specifies which column is used to sort
+    if params[:sortby] == "title"
+      @thclass_title = "hilite"
+      @movies = Movie.where(rating: @checked_ratings_set).order(title: :asc)
+    elsif params[:sortby] == "date"
+      @thclass_date = "hilite"
+      @movies = Movie.where(rating: @checked_ratings_set).order(release_date: :asc)
+    else
+      @movies = Movie.where(rating: @checked_ratings_set)
+    end    
+  end
+
     
     def new
         # default: render 'new' template
