@@ -23,19 +23,15 @@ class MoviesController < ApplicationController
     if params[:commit] == "Refresh"
       if params[:ratings] != nil
         @ratings_set = params[:ratings].keys
-        session[:rating_box] = @ratings_set
-      end
-    end
-    
-    if session[:rating_box].nil?
-      @all_ratings.each do |x|
-        @ratings_set<<x.rating
-      end
-    else
+      elsif session[:rating_box].nil?
+         @all_ratings.each do |x|
+         @ratings_set<<x.rating
+      else
       @ratings_set = session[:rating_box]
+      end
+      session[:rating_box] = @ratings_set
     end
 
-    # sort_by specifies which column is used to sort
     if params[:sortby] == "title"
       @thclass_title = "hilite"
       @movies = Movie.where(rating: @ratings_set).order(title: :asc)
