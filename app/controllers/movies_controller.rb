@@ -28,8 +28,7 @@ class MoviesController < ApplicationController
     end
     
     if session[:rating_box].nil?
-      @all_ratings.each do |rating| 
-        @ratings_set<<rating.rating
+      @rating_set=@all_ratings
       end
     else
       @ratings_set = session[:rating_box]
