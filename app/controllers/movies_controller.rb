@@ -19,9 +19,25 @@ class MoviesController < ApplicationController
       return
     end
 
-    session[:lastparams] = params
     
-    
+    #start sorting
+    sort=params[:sort]
+    case sort
+    when 'title'
+      @movies = Movie.where(rating: @ratings_set).order(title: :asc)
+      @title = "hilite"
+    when 'releasedate'
+      @movies = Movie.where(rating: @ratings_set).order(release_date: :asc)
+      @date = "hilite"
+    when nil
+       if session[:sort]!=nil
+       @movies = Movie.where(rating: @ratings_set)
+       end
+    end
+
+  
+
+    #start rating
     if params[:commit] == "Refresh"
       if params[:ratings] != nil
         @ratings_set = params[:ratings].keys
@@ -30,20 +46,14 @@ class MoviesController < ApplicationController
       else
       @ratings_set = session[:rating_box]
       end
-      session[:rating_box] = @ratings_set
     end
-   
-    if params[:sortby] == "title"
-      @thclass_title = "hilite"
-      @movies = Movie.where(rating: @ratings_set).order(title: :asc)
-    elsif params[:sortby] == "date"
-      @thclass_date = "hilite"
-      @movies = Movie.where(rating: @ratings_set).order(release_date: :asc)
-    else
-      @movies = Movie.where(rating: @ratings_set)
-    end    
-  end
 
+    session[:lastparams] = params
+    session[:rating_box] = @ratings_set
+    session[:sort]=params[:sort]
+
+    end
+    
     
     def new
         # default: render 'new' template
