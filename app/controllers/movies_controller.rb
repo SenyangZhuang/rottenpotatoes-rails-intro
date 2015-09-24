@@ -12,7 +12,7 @@ class MoviesController < ApplicationController
     
     
     def index
-        if params.length == 2 && session[:last_params] != nil 
+        if params.length == 2 && session[:last_params] != nil && session[:saved_args].length > 2
             redirect_to movies_path(session[:last_params])
             return
         end
@@ -20,7 +20,6 @@ class MoviesController < ApplicationController
         session[:last_params] = params
 
         @all_ratings = Movie.all.select('rating').distinct
-
 
         if params[:commit] == "Refresh"
             if params[:ratings] != nil
