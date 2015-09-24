@@ -13,26 +13,24 @@ class MoviesController < ApplicationController
     
   def index
     @all_ratings = Movie.all.select('rating').distinct
-    @ratings_set = []
-    if params.length == 2 && session[:lastparams] != nil && session[:lastparams].length > 2
+
+    if params.length == 2 && session[:lastparams] != nil 
       redirect_to movies_path(session[:lastparams])
       return
     end
+
     session[:lastparams] = params
+    
     
     if params[:commit] == "Refresh"
       if params[:ratings] != nil
         @ratings_set = params[:ratings].keys
-        session[:rating_box] = @ratings_set
-      end
-    end
-    
-    if session[:rating_box].nil?
-      @all_ratings.each do |x| 
-        @ratings_set<<x.rating
-      end
-    else
+      elsif session[:rating_box].nil?
+      @ratings_set=@all_ratings
+      else
       @ratings_set = session[:rating_box]
+      end
+      session[:rating_box] = @ratings_set
     end
    
     if params[:sortby] == "title"
