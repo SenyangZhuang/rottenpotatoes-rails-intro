@@ -10,43 +10,37 @@ class MoviesController < ApplicationController
         # will render app/views/movies/show.<extension> by default
     end
     
-    def retrive_collection
-        return Movie.all.select('rating').distinct
-    end
     
     def index
-        @all_ratings = retrive_collection()
-        @checked_ratings_set = []
-        if params.length == 2 && session[:saved_args] != nil && session[:saved_args].length > 2
-            redirect_to movies_path(session[:saved_args])
+        if params.length == 2 && session[:last_params] != nil 
+            redirect_to movies_path(session[:last_params])
             return
         end
-        session[:saved_args] = params
-        
+
+        session[:last_params] = params
+
+        @all_ratings = Movie.all.select('rating').distinct
+
+
         if params[:commit] == "Refresh"
             if params[:ratings] != nil
-                @checked_ratings_set = params[:ratings].keys
-                session[:checked_rating_box] = @checked_ratings_set
-            end
-        end
-        
-        if session[:checked_rating_box].nil?
-            @all_ratings.each do |rating|
-                @checked_ratings_set<<rating.rating
-            end
+               @ratings_set = params[:ratings].keys
+            elsif  session[:rating_box].nil?
+                @ratings_set = @all_ratings
             else
-            @checked_ratings_set = session[:checked_rating_box]
+                @ratings_set = session[:rating_box]
+            end
+            session[:rating_box] = @ratings_set
         end
         
-        # sort_by specifies which column is used to sort
         if params[:sortby] == "title"
             @thclass_title = "hilite"
-            @movies = Movie.where(rating: @checked_ratings_set).order(title: :asc)
+            @movies = Movie.where(rating: @ratings_set).order(title: :asc)
             elsif params[:sortby] == "date"
             @thclass_date = "hilite"
-            @movies = Movie.where(rating: @checked_ratings_set).order(release_date: :asc)
+            @movies = Movie.where(rating: @ratings_set).order(release_date: :asc)
             else
-            @movies = Movie.where(rating: @checked_ratings_set)
+            @movies = Movie.where(rating: @ratings_set)
         end
     end
     
