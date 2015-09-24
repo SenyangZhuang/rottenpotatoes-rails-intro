@@ -13,7 +13,7 @@ class MoviesController < ApplicationController
     
   def index
     @all_ratings = Movie.all.select('rating').distinct
-    @checked_ratings_set = []
+    @ratings_set = []
     if params.length == 2 && session[:saved_args] != nil && session[:saved_args].length > 2
       redirect_to movies_path(session[:saved_args])
       return
@@ -22,17 +22,17 @@ class MoviesController < ApplicationController
 
     if params[:commit] == "Refresh"
       if params[:ratings] != nil
-        @checked_ratings_set = params[:ratings].keys
-        session[:checked_rating_box] = @checked_ratings_set
+        @ratings_set = params[:ratings].keys
+        session[:checked_rating_box] = @ratings_set
       end
     end
     
     if session[:checked_rating_box].nil?
       @all_ratings.each do |rating| 
-        @checked_ratings_set<<rating.rating
+        @ratings_set<<rating.rating
       end
     else
-      @checked_ratings_set = session[:checked_rating_box]
+      @ratings_set = session[:checked_rating_box]
     end
 
     # sort_by specifies which column is used to sort
