@@ -14,36 +14,36 @@ class MoviesController < ApplicationController
   def index
     @all_ratings = Movie.all.select('rating').distinct
     @ratings_set = []
-    if params.length == 2 && session[:saved_args] != nil && session[:saved_args].length > 2
-      redirect_to movies_path(session[:saved_args])
+    if params.length == 2 && session[:lastparams] != nil && session[:lastparams].length > 2
+      redirect_to movies_path(session[:lastparams])
       return
     end
-    session[:saved_args] = params
+    session[:lastparams] = params
 
     if params[:commit] == "Refresh"
       if params[:ratings] != nil
         @ratings_set = params[:ratings].keys
-        session[:checked_rating_box] = @ratings_set
+        session[:rating_box] = @ratings_set
       end
     end
     
-    if session[:checked_rating_box].nil?
+    if session[:rating_box].nil?
       @all_ratings.each do |rating| 
         @ratings_set<<rating.rating
       end
     else
-      @ratings_set = session[:checked_rating_box]
+      @ratings_set = session[:rating_box]
     end
 
     # sort_by specifies which column is used to sort
     if params[:sortby] == "title"
       @thclass_title = "hilite"
-      @movies = Movie.where(rating: @checked_ratings_set).order(title: :asc)
+      @movies = Movie.where(rating: @ratings_set).order(title: :asc)
     elsif params[:sortby] == "date"
       @thclass_date = "hilite"
-      @movies = Movie.where(rating: @checked_ratings_set).order(release_date: :asc)
+      @movies = Movie.where(rating: @ratings_set).order(release_date: :asc)
     else
-      @movies = Movie.where(rating: @checked_ratings_set)
+      @movies = Movie.where(rating: @ratings_set)
     end    
   end
 
